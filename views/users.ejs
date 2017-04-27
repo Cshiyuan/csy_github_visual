@@ -9,7 +9,7 @@
 <h1><%= title %></h1>
 <p>Welcome to <%= title %></p>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div id="main" style="width: 600px;height:400px;"></div>
+<div id="main" style="width: 2000px;height:500px;"></div>
 
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
@@ -18,20 +18,20 @@
     // 指定图表的配置项和数据
     var option = {
         title: {
-            text: 'Test'
+            text: 'Github不同语言所拥有的库数量'
         },
         tooltip: {},
         legend: {
             data:['相应语言库数量']
         },
         xAxis: {
-            data: ["衬衫","羊毛衫","雪纺衫","裤子","Ruby","C"]
+            data: [<%- myLanguageName %>]
         },
         yAxis: {},
         series: [{
-            name: '销量',
+            name: '数量',
             type: 'bar',
-            data: [5, 20, 36, 10, <%= countR %>, <%= countC %>]
+            data: [<%= myLanguageCount %>]
         }]
     };
 

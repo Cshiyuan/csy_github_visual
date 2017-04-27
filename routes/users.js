@@ -11,43 +11,53 @@ var selectData = function (db, whereStr, callback) {
     var collection = db.collection('REPOS_TABLE');
     //查询数据
     // var whereStr = {"language": "C"};
-    collection.find(whereStr).toArray(function (err, result) {
-        if (err) {
-            console.log('Error:' + err);
-            return;
-        }
-        callback(result.length);
-    });
+    // collection.find(whereStr).toArray(function (err, result) {
+    //     if (err) {
+    //         console.log('Error:' + err);
+    //         return;
+    //     }
+    //     callback(result.length);
+    // });
+    var count = collection.find(whereStr).count();
+    callback(count);
     // var count = collection.find(whereStr).count();
     // // var count = collection.find(whereStr).count();
     // callback(count);
 };
+var aggregateLanguageCount = function (db, callback) {
 
+    db.collection('REPOS_TABLE').aggregate(
+        [
+            {$group: {"_id": "$language", "count": {$sum: 1}}}
+        ]).toArray(function (err, result) {
+
+        callback(result);
+    });
+};
 
 
 // var
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-    // res.send('respond with a resource');
-    // selectData(db, function(result){
-    //     console.log(result);
-    //     db.close();
-    // })
 
     MongoClient.connect(DB_CONN_STR, function (err, db) {
         console.log("连接成功!");
-        var resultC;
-        var resultR;
-        selectData(db, {"language": "C"}, function (result) {
-            console.log(result);
-            resultC = result;
 
-        });
-        selectData(db, {"language": "Ruby"}, function (result) {
+        aggregateLanguageCount(db, function (result) {
             console.log(result);
-            resultR = result;
+            // result = result;
+            var myLanguageName = [];
+            var myLanguageCount = [];
+            for (i = 0; i < result.length; i++) {
+                myLanguageName.push("\'" + result[i]._id + "\'");
+                myLanguageCount.push(result[i].count);
+            }
+            res.render('users', {
+                title: 'Csy_Github_Visual',
+                'myLanguageName': myLanguageName,
+                "myLanguageCount": myLanguageCount
+            });
         });
-
 
 
         db.close();
