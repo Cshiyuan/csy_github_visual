@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.5.3/echarts.common.min.js"></script>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+    <!--http://libs.baidu.com/jquery/1.11.1/jquery.min.js-->
+</head>
+<body>
+<h1><%= title %></h1>
+<p>Welcome to <%= title %></p>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 1200px; height:800px;"></div>
+<div id="mainTwo" style="width: 1200px; height:800px;"></div>
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    myChart.showLoading();
+    option = {
+        tooltip: {
+            trigger: 'axis',
+            position: function (pt) {
+                return [pt[0], '10%'];
+            }
+        },
+        title: {
+            left: 'center',
+            text: 'Github当日注册人数图',
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+//            data: date
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%']
+        },
+        dataZoom: [{
+            type: 'inside',
+            start: 0,
+            end: 10
+        }, {
+            start: 0,
+            end: 10,
+            handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+            handleSize: '80%',
+            handleStyle: {
+                color: '#fff',
+                shadowBlur: 3,
+                shadowColor: 'rgba(0, 0, 0, 0.6)',
+                shadowOffsetX: 2,
+                shadowOffsetY: 2
+            }
+        }],
+        series: [
+            {
+                name: '当日注册人数',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                sampling: 'average',
+                itemStyle: {
+                    normal: {
+                        color: 'rgb(255, 70, 131)'
+                    }
+                },
+                areaStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgb(255, 158, 68)'
+                        }, {
+                            offset: 1,
+                            color: 'rgb(255, 70, 131)'
+                        }])
+                    }
+                },
+//                data: data
+            }
+        ]
+    };
+    myChart.setOption(option)
+    $.ajax({
+        type: "get",
+        async: false, //同步执行
+        url: "/api/checkUserRegTime",
+        dataType: "json", //返回数据形式为json
+        data: {rnd: Math.random()},
+        success: function (result) {
+            if (result) {
+
+                var date = [];
+                var data = [];
+                for (var i = 0; i < result.length; i++) {
+                    date.push(result[i].name);
+                    data.push(result[i].value);
+                }
+                option.series[0].data = data;
+                option.xAxis.data = date;
+
+
+                myChart.hideLoading();
+                myChart.setOption(option);
+            }
+        },
+        error: function (errorMsg) {
+            alert("图表请求数据失败啦!");
+        }
+    });
+    // 指定图表的配置项和数据
+
+
+    //第二张图表
+    var myChartTwo = echarts.init(document.getElementById('mainTwo'));
+    myChartTwo.showLoading();
+    optionTwo = {
+        tooltip: {
+            trigger: 'axis',
+            position: function (pt) {
+                return [pt[0], '10%'];
+            }
+        },
+        title: {
+            left: 'center',
+            text: 'Github当日更新人数图',
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+//            data: date
+        },
+        yAxis: {
+            type: 'value',
+            boundaryGap: [0, '100%']
+        },
+        dataZoom: [{
+            type: 'inside',
+            start: 0,
+            end: 10
+        }, {
+            start: 0,
+            end: 10,
+            handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+            handleSize: '80%',
+            handleStyle: {
+                color: '#fff',
+                shadowBlur: 3,
+                shadowColor: 'rgba(0, 0, 0, 0.6)',
+                shadowOffsetX: 2,
+                shadowOffsetY: 2
+            }
+        }],
+        series: [
+            {
+                name: '当日活跃人数',
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                sampling: 'average',
+                itemStyle: {
+                    normal: {
+                        color: 'rgb(255, 70, 131)'
+                    }
+                },
+                areaStyle: {
+                    normal: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: 'rgb(255, 158, 68)'
+                        }, {
+                            offset: 1,
+                            color: 'rgb(255, 70, 131)'
+                        }])
+                    }
+                },
+//                data: data
+            }
+        ]
+    };
+    //    var option = {};
+    myChartTwo.setOption(optionTwo)
+    $.ajax({
+        type: "get",
+        async: false, //同步执行
+        url: "/api/checkUserUpdateTime",
+        dataType: "json", //返回数据形式为json
+        data: {rnd: Math.random()},
+        success: function (result) {
+            if (result) {
+
+                var date = [];
+                var data = [];
+                for (var i = 0; i < result.length; i++) {
+                    date.push(result[i].name);
+                    data.push(result[i].value);
+                }
+                optionTwo.series[0].data = data;
+                optionTwo.xAxis.data = date;
+
+
+                myChartTwo.hideLoading();
+                myChartTwo.setOption(optionTwo);
+            }
+        },
+        error: function (errorMsg) {
+            alert("图表请求数据失败啦!");
+        }
+    });
+
+
+</script>
+</body>
+</html>

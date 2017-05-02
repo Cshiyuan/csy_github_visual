@@ -12,7 +12,7 @@
 <p>Welcome to <%= title %></p>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <div id="main" style="width: 800px; height:800px;"></div>
-<div id="mainTwo" style="width: 800px; height:800px;"></div>
+<div id="mainTwo" style="width: 1200px; height:800px;"></div>
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
     //第一个图表
@@ -57,6 +57,10 @@
                 }
                 series.data = result;
                 option.series = series;
+                option.title = {
+                    text: "库的watcher数量占比",
+                    left: 'center'
+                }
                 myChart.hideLoading();
                 myChart.setOption(option);
             }
@@ -66,6 +70,7 @@
         }
     });
     // 指定图表的配置项和数据
+
 
     //第二个图表
     var myChartTwo = echarts.init(document.getElementById('mainTwo'));
@@ -81,36 +86,35 @@
         data: {rnd: Math.random()},
         success: function (result) {
             if (result) {
-                series = {
-                    name: '库的watchers',
-                    type: 'pie',
-                    radius: '55%'
-//                    roseType: 'angle',
-//                    label: {
-//                        normal: {
-//                            textStyle: {
-//                                color: 'rgba(255, 255, 255, 0.3)'
-//                            }
-//                        }
-//                    },
-//                    labelLine: {
-//                        normal: {
-//                            lineStyle: {
-//                                color: 'rgba(255, 255, 255, 0.3)'
-//                            }
-//                        }
-//                    },
-//                    itemStyle: {
-//                        normal: {
-//                            shadowBlur: 200,
-//                            shadowColor: 'rgba(0, 0, 0, 0.5)'
-//                        }
-//                    }
+                optionTwo = {
+                    title: {
+                        text: '不同语言的库数量',
+                        left: 'center'
+                    },
+                    tooltip: {},
+                    legend: {
+                        data: ['不同语言的库数量']
+                    },
+                    xAxis: {
+//                        data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '语言库数量',
+                        type: 'bar',
+//                        data: [5, 20, 36, 10, 10, 20]
+                    }]
+                };
+                dataNameArray = [];
+                dataValueArray = [];
+                for (var i = 0; i < result.length; i++) {
+                    dataNameArray.push(result[i]._id);
+                    dataValueArray.push(result[i].count);
                 }
-                series.data = result;
-                option.series = series;
+                optionTwo.series[0].data = dataValueArray;
+                optionTwo.xAxis.data = dataNameArray;
                 myChartTwo.hideLoading();
-                myChartTwo.setOption(option);
+                myChartTwo.setOption(optionTwo);
             }
         },
         error: function (errorMsg) {

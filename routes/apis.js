@@ -29,8 +29,25 @@ var reposSchema = new mongoose.Schema({   //Schema框架
     "owner_id": {type: Number}
 }, {collection: "REPOS_TABLE"});
 
+var userSchema = new mongoose.Schema({
 
-var reposModel = db.model("REPOS_TABLE", reposSchema);  //生成Model
+    "username": {type: String},
+    "public_repos": {type: Number},
+    "public_gists": {type: Number},
+    "created_at": {type: String},
+    "updated_at": {type: String},
+    "homepage_url": {type: String},
+    "repos_url": {type: String},
+    "location": {type: String},
+    "following": {type: Number},
+    "followers": {type: Number},
+    "id": {type: Number}
+
+}, {collection: "USER_TABLE"});
+
+
+var reposModel = db.model("REPOS_TABLE", reposSchema);  //生成ReposModel
+var userModel = db.model("USER_TABLE", userSchema);     //生成UserModel
 
 
 // reposModel.where({'language': 'C'}).count(function (err, count) {
@@ -41,6 +58,52 @@ var reposModel = db.model("REPOS_TABLE", reposSchema);  //生成Model
 //
 //     console.log('there are %d Ruby language', count);
 // });
+var checkUserUpdateTime = function (callback) {
+
+    userModel.aggregate().group({"_id": "$updated_at", "count": {$sum: 1}}).exec(function (err, res) {
+
+        resultMap = new Map();
+        for (var i = 0; i < res.length; i++) {
+            var key = res[i]._id.substr(0, 10).replace(/-/g, '/');
+            // console.log(key);
+            var value = resultMap.get(key);
+            if (value) {  //已经存在
+                value++;
+                resultMap.set(key, value);
+            } else {
+                value = 1;
+                resultMap.set(key, value);
+            }
+        }
+
+        // console.log(resultMap);
+        callback(resultMap);
+    });
+};
+
+
+var checkUserRegTime = function (callback) {
+
+    userModel.aggregate().group({"_id": "$created_at", "count": {$sum: 1}}).exec(function (err, res) {
+
+        resultMap = new Map();
+        for (var i = 0; i < res.length; i++) {
+            var key = res[i]._id.substr(0, 10).replace(/-/g, '/');
+            // console.log(key);
+            var value = resultMap.get(key);
+            if (value) {  //已经存在
+                value++;
+                resultMap.set(key, value);
+            } else {
+                value = 1;
+                resultMap.set(key, value);
+            }
+        }
+
+        // console.log(resultMap);
+        callback(resultMap);
+    });
+};
 
 var checkReposWatchersWithCount = function (num, callback) {
 
@@ -67,18 +130,17 @@ var mapToObj = function MapToObj(Map) {
     return obj;
 };
 
-var mapToArray = function MapToArray(Map) {
+var mapToArray = function MapToArray(Map, checkKey) {
     var arr = [];
     Map.forEach(function (value, key, map) {
 
         var obj = {};
         obj.value = value;
-        obj.name = '库的watcher大于' + key;
+        obj.name = checkKey(key);
         arr.push(obj);
     });
 
     return arr;
-
 };
 
 
@@ -91,7 +153,10 @@ router.get('/checkReposWatchersWithCount', function (req, res) {
             mapModel.set(num, count);
             // console.log('there are %d watchers', count);
             if (num >= 90) {
-                res.json(mapToArray(mapModel));
+                res.json(mapToArray(mapModel, function (key) {
+                    // '库的watcher大于'
+                    return '库的watcher大于' + key;
+                }));
             }
         });
     }
@@ -103,6 +168,24 @@ router.get('/checkReposLanguageWithCount', function (req, res) {
     checkReposLanguageWithCount(function (result) {
         res.json(result);
     });
+});
+
+router.get('/checkUserRegTime', function (req, res) {
+
+    checkUserRegTime(function (result) {
+        res.json(mapToArray(result, function (key) {
+            return key;
+        }));
+    });
+});
+
+
+router.get('/checkUserUpdateTime', function (req, res){
+    checkUserUpdateTime(function (result) {
+        res.json(mapToArray(result, function (key) {
+            return key;
+        }))
+    })
 });
 
 module.exports = router;
