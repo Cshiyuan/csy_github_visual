@@ -10,19 +10,8 @@ var selectData = function (db, whereStr, callback) {
     //连接到表
     var collection = db.collection('REPOS_TABLE');
     //查询数据
-    // var whereStr = {"language": "C"};
-    // collection.find(whereStr).toArray(function (err, result) {
-    //     if (err) {
-    //         console.log('Error:' + err);
-    //         return;
-    //     }
-    //     callback(result.length);
-    // });
     var count = collection.find(whereStr).count();
     callback(count);
-    // var count = collection.find(whereStr).count();
-    // // var count = collection.find(whereStr).count();
-    // callback(count);
 };
 var aggregateLanguageCount = function (db, callback) {
 
