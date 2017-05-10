@@ -2,41 +2,89 @@
 <html>
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.5.3/echarts.common.min.js"></script>
-    <title><%= title %></title>
+    <title>Csy_Github_Visual</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>
+    <!--http://libs.baidu.com/jquery/1.11.1/jquery.min.js-->
 </head>
 <body>
-<h1><%= title %></h1>
-<p>Welcome to <%= title %></p>
+<h1>User的数据相关图表</h1>
+<p>Welcome to Csy_Github_Visual</p>
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-<div id="main" style="width: 1000px;height:500px;"></div>
-
+<div id="main" style="width: 800px; height:800px;"></div>
+<div id="mainTwo" style="width: 1200px; height:800px;"></div>
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
+    //第一个图表
     var myChart = echarts.init(document.getElementById('main'));
+    var option = {};
+    myChart.setOption(option)
+    myChart.showLoading();
 
+    $.ajax({
+        type: "get",
+        async: false, //同步执行
+        url: "/api/checkUserFollowingWithCount",
+        dataType: "json", //返回数据形式为json
+        data: {rnd: Math.random()},
+        success: function (result) {
+            if (result) {
+                series = {
+                    name: '用户的following',
+                    type: 'pie',
+                    radius: '55%'
+                }
+                series.data = result;
+                option.series = series;
+                option.title = {
+                    text: "用户的following数量占比",
+                    left: 'center'
+                }
+                myChart.hideLoading();
+                myChart.setOption(option);
+            }
+        },
+        error: function (errorMsg) {
+            alert("图表请求数据失败啦!");
+        }
+    });
     // 指定图表的配置项和数据
-    var option = {
-        title: {
-            text: 'Github不同语言所拥有的库数量'
-        },
-        tooltip: {},
-        legend: {
-            data:['相应语言库数量']
-        },
-        xAxis: {
-            data: [<%- myLanguageName %>]
-        },
-        yAxis: {},
-        series: [{
-            name: '数量',
-            type: 'bar',
-            data: [<%= myLanguageCount %>]
-        }]
-    };
 
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
+
+    //第二个图表
+    var myChartTwo = echarts.init(document.getElementById('mainTwo'));
+    var optionTwo = {};
+    myChartTwo.setOption(optionTwo)
+    myChartTwo.showLoading();
+
+    $.ajax({
+        type: "get",
+        async: false, //同步执行
+        url: "/api/checkUserFollowerWithCount",
+        dataType: "json", //返回数据形式为json
+        data: {rnd: Math.random()},
+        success: function (result) {
+            if (result) {
+                series = {
+                    name: '用户的following',
+                    type: 'pie',
+                    radius: '55%'
+                }
+                series.data = result;
+                optionTwo.series = series;
+                optionTwo.title = {
+                    text: "用户的follower数量占比",
+                    left: 'center'
+                }
+                myChartTwo.hideLoading();
+                myChartTwo.setOption(optionTwo);
+            }
+        },
+        error: function (errorMsg) {
+            alert("图表请求数据失败啦!");
+        }
+    });
+
 </script>
 </body>
 </html>

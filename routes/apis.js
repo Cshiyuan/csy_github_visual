@@ -121,6 +121,22 @@ var checkReposLanguageWithCount = function (callback) {
     });
 };
 
+
+var checkUserFollowingWithCount = function (num, callback) {
+    userModel.where({'following': {$gt: num}}).count(function (err, count) {
+
+        callback(num, count);
+    });
+};
+
+
+var checkUserFollowerWithCount = function (num, callback) {
+    userModel.where({'followers': {$gt: num}}).count(function (err, count) {
+
+        callback(num, count);
+    });
+};
+
 var mapToObj = function MapToObj(Map) {
     var obj = {};
     Map.forEach(function (value, key, map) {
@@ -162,6 +178,40 @@ router.get('/checkReposWatchersWithCount', function (req, res) {
     }
 });
 
+router.get('/checkUserFollowerWithCount', function (req, res) {
+    var mapModel = new Map();
+    for (var i = 0; i < 10; i++) {
+        checkReposWatchersWithCount(i * 10, function (num, count) {
+
+            mapModel.set(num, count);
+            // console.log('there are %d watchers', count);
+            if (num >= 90) {
+                res.json(mapToArray(mapModel, function (key) {
+                    // '库的watcher大于'
+                    return 'Follower数量大于' + key;
+                }));
+            }
+        });
+    }
+});
+
+router.get('/checkUserFollowingWithCount', function (req, res) {
+    var mapModel = new Map();
+    for (var i = 0; i < 10; i++) {
+        checkUserFollowingWithCount(i * 10, function (num, count) {
+
+            mapModel.set(num, count);
+            // console.log('there are %d watchers', count);
+            if (num >= 90) {
+                res.json(mapToArray(mapModel, function (key) {
+                    // '库的watcher大于'
+                    return 'Following数量大于' + key;
+                }));
+            }
+        });
+    }
+});
+
 
 router.get('/checkReposLanguageWithCount', function (req, res) {
 
@@ -180,7 +230,7 @@ router.get('/checkUserRegTime', function (req, res) {
 });
 
 
-router.get('/checkUserUpdateTime', function (req, res){
+router.get('/checkUserUpdateTime', function (req, res) {
     checkUserUpdateTime(function (result) {
         res.json(mapToArray(result, function (key) {
             return key;

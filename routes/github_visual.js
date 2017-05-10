@@ -11,4 +11,13 @@ router.get('/', function (req, res, next) {
     });
 });
 
+
+router.get('/users', function (req, res, next) {
+
+    res.render('users');
+
+});
+
 module.exports = router;
+
+
